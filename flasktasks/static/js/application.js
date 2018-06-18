@@ -11,8 +11,12 @@ $("#delete-board").click(function() {
 $('.item-list').sortable({
     group: 'list-group',
     pullPlaceholder: false,
+    connectWith: '.item-list'
 });
-$('.item-list').disableSelection();
+
+$(document).bind("sortstop", function(event) {
+    console.log("SORT STOPPED!", event)
+})
 
 $(document).on('click', '.up', function(e) {
     var list = $(this).closest('.list')

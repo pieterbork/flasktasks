@@ -9,6 +9,7 @@
         <div class="list-group item-list">
             {%- set tasks=list.get_tasks() %}
             {% for task in tasks %}
+            <li>
             <a href="{{ url_for('task', task_id=task.id) }}" class="list-group-item {{ 'tagged tag-' + colors_rev[task.color].lower() }} row">
                 <h4 class="list-group-item-heading">{{ task.title }}</h4>
                 <p class="list-group-item-text">{{ task.description }}</p>
@@ -27,6 +28,7 @@
                     {% endif %}
                 </div>
             </a>
+            </li>
             {% endfor %}
         </div>
     </div>

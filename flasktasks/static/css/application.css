@@ -19,7 +19,6 @@ body.dragging, body.dragging * {
 
 .item-list {
     min-height: 200px;
-    border: 1px solid #eee;
 }
 .control-stack {
     position:absolute;
