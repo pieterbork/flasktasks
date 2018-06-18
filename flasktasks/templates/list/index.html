@@ -1,0 +1,26 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ list.title }}
+            <span class="glyphicon glyphicon-{{ icons[list.icon]|lower }}"></span>
+            <span><a class="btn btn-link new-item" href="/list/{{list.id}}/tasks/new"><i class="glyphicon glyphicon-plus"></i> New Task</a></span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div class="list-group">
+            {% for task in list.tasks %}
+            <a href="{{ url_for('task', task_id=task.id) }}" class="list-group-item {{ 'tagged tag-' + colors[task.color].lower() }} row">
+                {{ task.order }}
+                <h4 class="list-group-item-heading">{{ task.title }}</h4>
+                <p class="list-group-item-text">{{ task.description }}</p>
+                <div class="btn-group-vertical control-stack">
+                    {% if task.order > 0 %}
+                    <button class="btn btn-xs btn-info"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                    {% endif %}
+                    <button class="btn btn-xs btn-info"><i class="glyphicon glyphicon-chevron-right"></i></button>
+                    <button class="btn btn-xs btn-info"><i class="glyphicon glyphicon-chevron-down"></i></button>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>

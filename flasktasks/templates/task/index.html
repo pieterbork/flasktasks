@@ -2,38 +2,24 @@
 {% block body %}
 <div class="container">
     <div class="page-header">
-        <h1>Tasks<small class="pull-right">Mission</small></h1>
+        <h1>{{ task.title }}</h1>
     </div>
-
-    {% if mission %}
-        <div class="well well-lg">
-            <h4>{{ mission.title }}, <small>{{ mission.description }}</small></h4>
-            <div class="btn-group task-control" role="group">
-                <a href="{{ url_for('new_task', mission_id=mission.id) }}" class="btn btn-link new-item"><span class="glyphicon glyphicon-plus"></span>New Task</a>
-                <a href="{{ url_for('delete_mission', mission_id=mission.id) }}" id="delete-mission" class="btn btn-link"><span class="glyphicon glyphicon-trash"></span>Remove</a>
+    <div class="row">
+        <div class="col-sm-9">
+            <p class="lead">
+                {{ task.description }}
+            </p>
+        </div>
+        <div class="col-sm-3 task-control">
+            <select class="selectpicker form-control" name="status">
+                {% for list in lists %}
+                <option data-icon="glyphicon-{{icons[list.icon]|lower}}" {% if list.id == task.list_id %} selected {% endif %} value="{{list.id}}">{{ list.title }}</option>
+                {% endfor %}
+            </select>
+            <div class="btn-group btn-group-justified" role="group">
+				<a href="{{ url_for('edit_task', task_id=task.id) }}" id="edit-task" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span>Edit</a>
+                <a href="{{ url_for('task', task_id=task.id) }}" id="delete-task" class="btn btn-link"><span class="glyphicon glyphicon-trash"></span>Remove</a>
             </div>
-        </div>
-    {% else %}
-        <a href="{{ url_for('new_task') }}" class="btn btn-link new-item">
-            <span class="glyphicon glyphicon-plus"></span>New Task
-        </a>
-    {% endif %}
-
-    <div class="row kanban">
-        <div class="col-sm-4">
-            {% with title="To Do", status="TO_DO", icon="fire" %}
-                {% include "task/kanban_panel.html" %}
-            {% endwith %}
-        </div>
-        <div class="col-sm-4">
-            {% with title="Doing", status="DOING", icon="send" %}
-                {% include "task/kanban_panel.html" %}
-            {% endwith %}
-        </div>
-        <div class="col-sm-4">
-            {% with title="Done", status="DONE", icon="sunglasses" %}
-                {% include "task/kanban_panel.html" %}
-            {% endwith %}
         </div>
     </div>
 </div>

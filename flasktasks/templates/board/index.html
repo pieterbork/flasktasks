@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container">
+    {% if board %}
+        <div class="well well-lg">
+            <h4>{{ board.title }} <small>{{ board.description }}</small></h4>
+            <div class="btn-group task-control" role="group">
+                <a href="{{ url_for('new_list', board_id=board.id) }}" class="btn btn-link new-item"><span class="glyphicon glyphicon-plus"></span>New List</a>
+                {# <a href="{{ url_for('new_task', board_id=board.id) }}" class="btn btn-link new-item"><span class="glyphicon glyphicon-plus"></span>New Task</a>#}
+				<a href="{{ url_for('future') }}" id="edit-task" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span>Edit Board</a>
+                <btn id="delete-board" class="btn btn-link"><span class="glyphicon glyphicon-trash"></span>Delete</btn>
+            </div>
+        </div>
+    {% else %}
+        <a href="{{ url_for('new_task') }}" class="btn btn-link new-item">
+            <span class="glyphicon glyphicon-plus"></span>New Task
+        </a>
+    {% endif %}
+
+    <div class="row kanban">
+        {%- set lists=board.get_lists() %}
+        {% if lists|length > 0 %}
+            {% for list in board.get_lists() %}
+                <div class="col-sm-4">
+                    {% include "list/index.html" %}
+                </div>
+            {% endfor %}
+        {% else %}
+            Create list!
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

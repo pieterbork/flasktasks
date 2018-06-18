@@ -9,25 +9,7 @@ A simple Kanban board made with Flask
 
 Install the Following dependencies.
 
-* Python 3
-
-* Flask
-```
-pip install flask
-```
-
-* SQLAlchemy
-```
-pip install flask_sqlalchemy
-```
-
-* Blinker
-```
-pip install blinker
-```
-
-* SQLite
-
+`pip install -e .`
 
 ## Running
 
@@ -36,7 +18,7 @@ Before running, you must create the database. Run the `setup_db.py` script to cr
 python setup_db.py
 ```
 
-The development server can be started by running the `runserver.py` scrip.
+The development server can be started by running the `runserver.py` script.
 ```
 python runserver.py
 ```

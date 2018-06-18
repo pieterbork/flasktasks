@@ -1,9 +1,14 @@
-.badge-big {
-    font-size: 125%;
+.control-stack {
+    position:absolute;
+    bottom:10px;
+    right:0;
 }
 
-.badge-blue {
-    background-color: #337ab7;
+.task-count {
+    position:absolute;
+    top: 0;
+    right: 0;
+    border: 1px solid;
 }
 
 .btn.new-item .glyphicon {

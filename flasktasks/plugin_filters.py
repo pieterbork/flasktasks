@@ -4,6 +4,6 @@ from flasktasks.plugins import dispatch
 
 
 @app.template_filter('html_dispatch')
-def html_dispatch(mission, function):
-    values = dispatch(function, mission)
-    return Markup(''.join(values))
+def html_dispatch(board, function):
+	values = dispatch(function, board)
+	return Markup(''.join(values))

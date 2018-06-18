@@ -3,7 +3,7 @@ $("#delete-task").click(function() {
     return false;
 });
 
-$("#delete-mission").click(function() {
+$("#delete-board").click(function() {
     http_delete($(this));
     return false;
 });
