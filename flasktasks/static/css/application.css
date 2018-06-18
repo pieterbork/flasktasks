@@ -1,3 +1,26 @@
+body.dragging, body.dragging * {
+  cursor: move !important;
+}
+
+.dragged {
+  position: absolute;
+  opacity: 0.5;
+  z-index: 2000;
+}
+
+.item-list li.placeholder {
+  position: relative;
+  /** More li styles **/
+}
+.item-list li.placeholder:before {
+  position: absolute;
+  /** Define arrowhead **/
+}
+
+.item-list {
+    min-height: 200px;
+    border: 1px solid #eee;
+}
 .control-stack {
     position:absolute;
     bottom:10px;

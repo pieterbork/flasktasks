@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
-<div class="container">
+<div class="container board">
     {% if board %}
         <div class="well well-lg">
             <h4>{{ board.title }} <small>{{ board.description }}</small></h4>
@@ -17,17 +17,6 @@
         </a>
     {% endif %}
 
-    <div class="row kanban">
-        {%- set lists=board.get_lists() %}
-        {% if lists|length > 0 %}
-            {% for list in board.get_lists() %}
-                <div class="col-sm-4">
-                    {% include "list/index.html" %}
-                </div>
-            {% endfor %}
-        {% else %}
-            Create list!
-        {% endif %}
-    </div>
+    {% include "list/list_container.html" %}
 </div>
 {% endblock %}

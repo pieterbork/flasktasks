@@ -5,6 +5,15 @@ from flasktasks.models import Board, List, Task, Status, Color, Icon, LogEntry
 from flasktasks.signals import task_created, board_created 
 import sqlite3
 
+@app.context_processor
+def inject_template_globals():
+    return {
+            'colors': Color.all(),
+            'colors_rev': Color.all_reverse(),
+            'icons': Icon.all(),
+            'icons_rev': Icon.all_reverse(),
+        }
+
 @app.route('/')
 def index():
     return redirect(url_for('boards'))
@@ -16,7 +25,7 @@ def future():
 @app.route('/boards')
 def boards():
     boards = Board.query.all()
-    return render_template('boards.html', boards=boards, colors=Color.all_reverse())
+    return render_template('boards.html', boards=boards)
 
 @app.route('/boards/new', methods=['POST', 'GET'])
 def new_board():
@@ -39,7 +48,7 @@ def new_board():
             print("Board named {} must already exist".format(title))
         return redirect(url_for('boards'))
     else:
-        return render_template('board/new.html', colors=Color.all())
+        return render_template('board/new.html')
 
 @app.route('/board/<int:board_id>', methods=['GET', 'DELETE'])
 def board(board_id):
@@ -52,7 +61,7 @@ def board(board_id):
         board = Board.query.get_or_404(board_id)
         tasks_by_status = board.get_tasks_by_status()
 
-        return render_template('board/index.html', board=board, colors=Color.all_reverse(), icons=Icon.all_reverse())
+        return render_template('board/index.html', board=board)
 
 @app.route('/board/<int:board_id>/lists/new', methods=['POST', 'GET'])
 def new_list(board_id):
@@ -90,7 +99,7 @@ def new_task(list_id):
         task_created.send(task)
         return redirect(url_for('board', board_id=list.board_id))
     else:
-        return render_template('task/new.html', colors=Color.all())
+        return render_template('task/new.html')
 
 @app.route('/tasks/<int:task_id>', methods=['DELETE', 'GET'])
 def task(task_id):
@@ -101,7 +110,7 @@ def task(task_id):
         return url_for('board', board_id=task.board_id)
     else:
         task = Task.query.get_or_404(task_id)
-        lists = List.query.filter(List.id == task.list_id).all()
+        lists = List.query.filter(List.board_id == task.board_id).all()
         return render_template('task/index.html', lists=lists, task=task, icons=Icon.all_reverse())
     
 @app.route('/tasks/<int:task_id>/edit', methods=['POST','GET'])
@@ -118,53 +127,68 @@ def edit_task(task_id):
         return redirect(url_for('board', board_id=task.board_id))
     else:
         task = Task.query.get_or_404(task_id)
-        return render_template('task/edit.html', task=task, colors=Color.all())
+        return render_template('task/edit.html', task=task)
 
-@app.route('/tasks/<int:task_id>/set_status/<status>')
-def set_status(task_id, status):
+@app.route('/tasks/<int:task_id>/set_list/<direction>')
+def set_status(task_id, direction, methods=['GET']):
     task = Task.query.get_or_404(task_id)
     board = Board.query.get_or_404(task.board_id)
-    current_tasks = board.get_tasks_by_status()
-    
-    current_list_tasks = current_tasks[Status(task.status).name]
-    current_index = current_list_tasks.index(task)
-    tasks_need_reorder = current_list_tasks[current_index+1:]
-    for t in tasks_need_reorder:
-        t.order -= 1
-        db.session.add(t)
+    lists = board.get_lists()
+    current_list = List.query.filter(List.id == task.list_id).first()
+    current_tasks = current_list.get_tasks()
 
-    order = len(current_tasks[status.upper()])
-    try:
-        task.status = Status[status.upper()].value
-    except KeyError:
-        abort(400)
-    task.order = order
+    if direction.lower() == "next":
+        current_index = current_tasks.index(task)
+        for t in current_tasks[current_index+1:]:
+            t.order -= 1
+        new_list = lists[lists.index(current_list) + 1]
+    elif direction.lower() == "prev":
+        current_index = current_tasks.index(task)
+        for t in current_tasks[current_index+1:]:
+            t.order -= 1
+        new_list = lists[lists.index(current_list) - 1]
 
-    db.session.add(task)
+    new_order = len(new_list.get_tasks())
+    task.order = new_order
+    current_list.tasks.remove(task)
+    new_list.tasks.append(task)
+
+    db.session.add(current_list)
+    db.session.add(new_list)
     db.session.commit()
-    return redirect(url_for('board', board_id=task.board_id))
 
-@app.route('/tasks/<int:task_id>/set_order/<int:order>')
+    return render_template('list/list_container.html', board=board)
+
+@app.route('/tasks/<int:task_id>/set_order/<order>', methods=['GET'])
 def set_order(task_id, order):
     task = Task.query.get_or_404(task_id)
-    board = Board.query.get_or_404(task.board_id)
-    current_tasks = board.get_tasks_by_status(task.status)
+    list = List.query.get_or_404(task.list_id)
+    current_tasks = list.get_tasks()
     current_index = current_tasks.index(task)
 
-    if order > task.order:
-        reordered_task = current_tasks[current_index+1]
-        reordered_task.order -= 1
-    else:
+    if (order == "up" and task.order - 1 < 0) or \
+        (order == "down" and task.order + 1 > len(current_tasks)) or \
+        (len(current_tasks) == 1):
+        return render_template('list/index.html', list=list)
+
+
+    if order.lower() == "up":
         reordered_task = current_tasks[current_index-1]
         reordered_task.order += 1
+        task.order -= 1
+    elif order.lower() == "down":
+        reordered_task = current_tasks[current_index+1]
+        reordered_task.order -= 1
+        task.order += 1
+    else:
+        print("{} is not up or down?".format(order))
+        return None
 
-    task.order = order
-    
     db.session.add(reordered_task)
     db.session.add(task)
     db.session.commit()
-    
-    return render_template('list')
+
+    return render_template('list/index.html', list=list)
 
     
 #@app.route('/tasks/<int:task_id>', methods=['DELETE'])

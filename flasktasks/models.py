@@ -68,6 +68,9 @@ class List(db.Model):
         self.order = order
         self.color = color
 
+    def get_num_lists(self):
+        return len(List.query.filter(List.board_id == self.board_id).all())
+
     def get_tasks(self):
         return list(self.tasks.order_by(Task.order))
 

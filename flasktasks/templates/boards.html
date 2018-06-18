@@ -10,7 +10,7 @@
     </div>
     <div class="list-group">
         {% for board in boards %}
-        <a href="/board/{{board.id}}" class="list-group-item {{ "tagged tag-" + colors[board.color].lower() }}">
+        <a href="/board/{{board.id}}" class="list-group-item {{ "tagged tag-" + colors_rev[board.color].lower() }}">
                 <div class="row">
                     <div class="col-sm-11">
                         <h4 class="list-group-item-header">{{ board.title }}</h4>
@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-sm-1 task-count">
                         {%- set num_tasks=board.get_num_tasks() %}
-                        <span>{{ num_tasks }} task{% if num_tasks>1 %}s{% endif %}</span>
+                        <span>{{ num_tasks }} task{% if num_tasks != 1 %}s{% endif %}</span>
                     </div>
                 </div>
             </a>

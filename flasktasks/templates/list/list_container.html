@@ -1,0 +1,14 @@
+{% block extra %}
+    <div class="row kanban list-container">
+    {%- set lists=board.get_lists() %}
+    {% if lists|length > 0 %}
+        {% for list in board.get_lists() %}
+            <div class="col-sm-4">
+                {% include "list/index.html" %}
+            </div>
+        {% endfor %}
+    {% else %}
+        Create list!
+    {% endif %}
+    </div>
+{% endblock %}
