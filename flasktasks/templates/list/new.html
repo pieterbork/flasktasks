@@ -11,7 +11,7 @@
         <div class="form-group">
             <select class="selectpicker form-control" name="icon">
                 {% for key,value in icons.items() %}
-                <option value="{{value}}" data-icon="glyphicon-{{ key|lower }}">{{ key|lower }}</option>
+                <option value="{{value}}" data-icon="glyphicon-{{ key|lower|replace('_','-') }}">{{ key|lower|replace('_', ' ') }}</option>
                 {% endfor %}
             </select>
         </div>

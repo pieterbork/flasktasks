@@ -12,6 +12,21 @@ class Icon(Enum):
     FIRE = 1
     SEND = 2
     SUNGLASSES = 3
+    LEAF = 4
+    PLANE = 5
+    SHOPPING_CART = 6
+    GLOBE = 7
+    HEART = 8
+    USD = 9
+    PHONE = 10
+    FLASH = 11
+    TREE_DECIDUOUS = 12
+    KNIGHT = 13
+    PIGGY_BANK = 14
+    APPLE = 15
+    EDUCATION = 16
+    ICE_LOLLY_TASTED = 17
+
 
     def all():
         return {icon.name: icon.value for icon in Icon}

@@ -1,82 +1,25 @@
-$("#delete-task").click(function() {
-    http_delete($(this));
-    return false;
-});
-
-$("#delete-board").click(function() {
-    http_delete($(this));
-    return false;
-});
-
-$('.item-list').sortable({
-    group: 'list-group',
-    pullPlaceholder: false,
-    connectWith: '.item-list'
-});
-
-$(document).bind("sortstop", function(event) {
-    console.log("SORT STOPPED!", event)
+$(document).on('click', '#delete-list', function(e) {
+    $.ajax({
+        url: $(this).attr('href'),
+        type: 'DELETE',
+        success: function(result) {
+            $('.list-container').replaceWith(result)
+        }
+    })
 })
 
-$(document).on('click', '.up', function(e) {
-    var list = $(this).closest('.list')
-    var task = $(this).closest('.list-group-item').attr('href')
-    var url = task + "/set_order/up"
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function(result) {
-            $(list).replaceWith(result)
-        }
-    })
+$(document).on('click', '#delete-task', function(e) {
+    http_delete($(this))
     return false
-});
+})
 
-$(document).on('click', '.down', function(e) {
-    var list = $(this).closest('.list')
-    var task = $(this).closest('.list-group-item').attr('href')
-    var url = task + "/set_order/down"
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function(result) {
-            $(list).replaceWith(result)
-        }
-    })
+$(document).on('click', '#delete-board', function(e) {
+    http_delete($(this))
     return false
-});
-
-$(document).on('click', '.next', function(e) {
-    var board = $(this).closest('.board')
-    var task = $(this).closest('.list-group-item').attr('href')
-    var url = task + "/set_list/next"
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function(result) {
-            $('.list-container').replaceWith(result)
-        }
-    })
-    return false
-});
-
-$(document).on('click', '.prev', function(e) {
-    var board = $(this).closest('.board')
-    var task = $(this).closest('.list-group-item').attr('href')
-    var url = task + "/set_list/prev"
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function(result) {
-            $('.list-container').replaceWith(result)
-        }
-    })
-    return false
-});
-
-
+})
 
 function http_delete(element) {
+    console.log(element.attr('href'))
     $.ajax({
         url: element.attr('href'),
         type: 'DELETE',
@@ -85,3 +28,24 @@ function http_delete(element) {
         }
     });
 }
+
+$('.item-list').sortable({
+    group: 'list-group',
+    pullPlaceholder: false,
+    connectWith: '.item-list',
+    stop: function(event, ui) {
+        var url_parts = $(ui.item).find('a').attr('href').split("/")
+        var task = url_parts[url_parts.length - 1]
+        var list_parts = $(ui.item).closest('.list').find('a').attr('href').split("/")
+        var list = list_parts[2]
+        var url = '/tasks/' + task + '/set_list/' + list + '/order/' + $(ui.item).index()
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(result) {
+                console.log('yay')
+            }
+        })
+    }
+});
