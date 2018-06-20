@@ -1,3 +1,13 @@
+function reload_list_container() {
+    $.ajax({
+        url: "{{ url_for('list_container') }}",
+        type: 'GET',
+        success: function(result) {
+           $('.list_container').replaceWith(result);
+        },
+    });
+}
+
 $(document).on('click', '#delete-list', function(e) {
     $.ajax({
         url: $(this).attr('href'),
@@ -19,7 +29,6 @@ $(document).on('click', '#delete-board', function(e) {
 })
 
 function http_delete(element) {
-    console.log(element.attr('href'))
     $.ajax({
         url: element.attr('href'),
         type: 'DELETE',
@@ -29,23 +38,6 @@ function http_delete(element) {
     });
 }
 
-$('.item-list').sortable({
-    group: 'list-group',
-    pullPlaceholder: false,
-    connectWith: '.item-list',
-    stop: function(event, ui) {
-        var url_parts = $(ui.item).find('a').attr('href').split("/")
-        var task = url_parts[url_parts.length - 1]
-        var list_parts = $(ui.item).closest('.list').find('a').attr('href').split("/")
-        var list = list_parts[2]
-        var url = '/tasks/' + task + '/set_list/' + list + '/order/' + $(ui.item).index()
-
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function(result) {
-                console.log('yay')
-            }
-        })
-    }
-});
+setTimeout(function() {
+    $('#flash-message').hide('slide', '1000');
+}, 4000); // <-- time in milliseconds

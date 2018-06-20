@@ -1,5 +1,27 @@
 {% extends "base.html" %}
 {% block body %}
+<script type="text/javascript" charset="utf-8">
+    var namespace = "/board/{{ board.id }}";
+    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+    socket.on('connect', function() {
+        socket.emit('message', {data: 'I\'m connect ' + namespace });
+    });
+
+    socket.on('task_update', function(data) {
+        $.ajax({
+            url: "{{ url_for('list_container', board_id=board.id) }}",
+            type: 'GET',
+            success: function(result) {
+               $('.list-container').replaceWith(result);
+            }
+        });
+    });
+
+    socket.on('board_delete', function(data) {
+        window.location = "{{ url_for('boards') }}"
+    });
+</script>
 <div class="container board">
     {% if board %}
         <div class="well well-lg">

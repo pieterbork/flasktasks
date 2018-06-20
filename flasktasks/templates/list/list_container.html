@@ -11,4 +11,23 @@
         Create list!
     {% endif %}
     </div>
+    <script type="text/javascript">
+        $('.item-list').sortable({
+            group: 'list-group',
+            pullPlaceholder: false,
+            connectWith: '.item-list',
+            stop: function(event, ui) {
+                var url_parts = $(ui.item).find('a').attr('href').split("/")
+                var task = url_parts[url_parts.length - 1]
+                var list_parts = $(ui.item).closest('.list').find('a').attr('href').split("/")
+                var list = list_parts[2]
+                var url = '/tasks/' + task + '/set_list/' + list + '/order/' + $(ui.item).index()
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                })
+            }
+        });
+    </script>
 {% endblock %}

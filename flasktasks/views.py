@@ -1,9 +1,9 @@
-from flask import render_template, request, redirect, url_for, abort, jsonify, flash
+from flask import render_template, request, redirect, url_for, abort, jsonify, flash, make_response
 from collections import defaultdict
-from flasktasks import app, db
+from flasktasks import app, db, socketio
 from flasktasks.models import Board, List, Task, Color, Icon, LogEntry
-from flasktasks.signals import task_created, board_created 
 import sqlite3
+import flask_socketio as socket
 
 @app.context_processor
 def inject_template_globals():
@@ -22,10 +22,15 @@ def index():
 def future():
     return render_template('future.html')
 
-@app.route('/boards')
+@app.route('/boards', methods=['GET'])
 def boards():
     boards = Board.query.all()
     return render_template('boards.html', boards=boards)
+
+@app.route('/board_container', methods=['GET'])
+def board_container():
+    boards = Board.query.all()
+    return render_template('board/board_container.html', boards=boards)
 
 @app.route('/boards/new', methods=['POST', 'GET'])
 def new_board():
@@ -41,10 +46,10 @@ def new_board():
             board = Board(title, desc, color)
             db.session.add(board)
             db.session.commit()
-            board_created.send(board)
-            flash('Board was created successfully!')
+            socketio.emit('board_create', namespace='/boards')
+            flash('Board was created successfully!', 'success')
         else:
-            flash('A board with that title already exists!')
+            flash('A board with that title already exists!', 'error')
             print("Board named {} must already exist".format(title))
         return redirect(url_for('boards'))
     else:
@@ -56,6 +61,8 @@ def board(board_id):
         board = Board.query.get_or_404(board_id)
         db.session.delete(board)
         db.session.commit()
+        socketio.emit('board_delete', namespace='/board/{}'.format(board_id))
+        socketio.emit('board_delete', namespace='/boards')
         return url_for('boards')
     else:
         board = Board.query.get_or_404(board_id)
@@ -77,9 +84,15 @@ def new_list(board_id):
         li = List(title, icon, board_id, order)
         db.session.add(li)
         db.session.commit()
+        socketio.emit('task_update', namespace='/board/{}'.format(board_id))
         return redirect(url_for('board', board_id=board_id))
     else:
         return render_template('list/new.html', icons=Icon.all())
+
+@app.route('/board/<int:board_id>/list_container')
+def list_container(board_id):
+    board = Board.query.get_or_404(board_id)
+    return render_template('list/list_container.html', board=board)
 
 @app.route('/list/<int:list_id>', methods=['DELETE'])
 def delete_list(list_id):
@@ -89,6 +102,7 @@ def delete_list(list_id):
     db.session.commit()
 
     board = Board.query.get_or_404(list.board_id)
+    socketio.emit('task_update', namespace='/board/{}'.format(board.id))
 
     return render_template('list/list_container.html', board=board)
 
@@ -108,7 +122,7 @@ def new_task(list_id):
         task = Task(title, desc, list_id, list.board_id, order, color)
         db.session.add(task)
         db.session.commit()
-        task_created.send(task)
+        socketio.emit('task_update', namespace='/board/{}'.format(task.board_id))
         return redirect(url_for('board', board_id=list.board_id))
     else:
         return render_template('task/new.html')
@@ -120,6 +134,7 @@ def task(task_id):
         task = Task.query.get_or_404(task_id)
         db.session.delete(task)
         db.session.commit()
+        socketio.emit('task_update', namespace='/board/{}'.format(task.board_id))
         return url_for('board', board_id=task.board_id)
     else:
         task = Task.query.get_or_404(task_id)
@@ -137,6 +152,7 @@ def edit_task(task_id):
         except:
             pass
         db.session.commit()
+        socketio.emit('task_update', namespace='/board/{}'.format(task.board_id))
         return redirect(url_for('board', board_id=task.board_id))
     else:
         task = Task.query.get_or_404(task_id)
@@ -171,6 +187,8 @@ def set_order(task_id, list_id, order):
 
     task.order = order
     db.session.commit()
+
+    socketio.emit('task_update', namespace='/board/{}'.format(task.board_id))
 
     return "Great!"
 

@@ -1,6 +1,28 @@
 li {
     list-style: none;
 }
+#message-box {
+    min-height: 30px;
+}
+
+#flash-message {
+    max-width: 40%;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    text-align: right;
+    padding: 0 10px;
+}
+.error-message {
+    background: #dc3545;
+    border: 3px solid #dc3545;
+}
+.success-message {
+    background: #28a745;
+    border: 3px solid #28a745;
+}
+.info-message {
+    background: #17a2b8;
+}
 
 body.dragging, body.dragging * {
   cursor: move !important;

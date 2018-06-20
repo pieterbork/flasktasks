@@ -8,6 +8,7 @@ setup(
         'flask',
         'flask_sqlalchemy',
         'flask_login',
-        'blinker'
+        'flask-socketio',
+        'eventlet'
     ]
 )

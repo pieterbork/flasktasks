@@ -1,31 +1,37 @@
 {% extends "base.html" %}
 {% block body %}
-<div class="container">
-    <div class="page-header">
-        <h1>Boards</h1>
-    </div>
+<script type="text/javascript" charset="utf-8">
+    var namespace = "/boards";
+    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
-    <div class="btn-group task-control" role="group">
-        <a href="{{ url_for('new_board') }}" class="btn btn-link new-board"><span class="glyphicon glyphicon-plus"></span><span>New Board</span></a>
-    </div>
-    <div class="list-group">
-        {% for board in boards %}
-        <a href="/board/{{board.id}}" class="list-group-item {{ "tagged tag-" + colors_rev[board.color].lower() }}">
-                <div class="row">
-                    <div class="col-sm-11">
-                        <h4 class="list-group-item-header">{{ board.title }}</h4>
-                        <p class="list-group-item-text">{{ board.description }}</p>
-                        <div class="board-item-additional-content">
-                            {{ board | html_dispatch("board_list_item_additional_content") }}
-                        </div>
-                    </div>
-                    <div class="col-sm-1 task-count">
-                        {%- set num_tasks=board.get_num_tasks() %}
-                        <span>{{ num_tasks }} task{% if num_tasks != 1 %}s{% endif %}</span>
-                    </div>
-                </div>
-            </a>
+    function reload_board_container() {
+        $.ajax({
+            url: "{{ url_for('board_container') }}",
+            type: 'GET',
+            success: function(result) {
+               $('#board-container').replaceWith(result);
+            }
+        });
+    }
+
+    socket.on('board_delete', function(data) {
+        reload_board_container();
+    });
+
+    socket.on('board_create', function(data) {
+        reload_board_container();
+    });
+</script>
+<div id="message-box">
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category,message in messages %}
+        <h4 id="flash-message" class="{{category}}-message">{{ message }}</h4>
         {% endfor %}
-    </div>
+    {% elif error %}
+        <h4 id="flash-message" class="error-message">{{ error }}</h4>
+    {% endif %}
+{% endwith %}
 </div>
+{% include 'board/board_container.html' %}
 {% endblock %}
