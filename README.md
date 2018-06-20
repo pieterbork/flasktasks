@@ -18,18 +18,11 @@ Before running, you must create the database. Run the `setup_db.py` script to cr
 python setup_db.py
 ```
 
-The development server can be started by running the `runserver.py` script.
+Socket.io provides a web ready interface when eventlet is installed
 ```
-python runserver.py
+export FLASK_APP=flasktasks
+flask run
 ```
 
 And finally browse to http://localhost:5000
 
-## Running Tests
-
-There is no script to run all tests at once yet, since FlaskTasks still does not us nose or anything like it yet. To execute the tests, run each test file as a module.
-
-```
-python -m flasktasks.tests.tags_tests
-python -m flasktasks.tests.missions_tests
-```
