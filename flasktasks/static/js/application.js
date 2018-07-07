@@ -9,13 +9,15 @@ function reload_list_container() {
 }
 
 $(document).on('click', '#delete-list', function(e) {
-    $.ajax({
-        url: $(this).attr('href'),
-        type: 'DELETE',
-        success: function(result) {
-            $('.list-container').replaceWith(result)
-        }
-    })
+    if(confirm('Are you sure you want to delete this list and all tasks associated with it?')) {
+        $.ajax({
+            url: $(this).attr('href'),
+            type: 'DELETE',
+            success: function(result) {
+                $('.list-container').replaceWith(result)
+            }
+        })
+    }
 })
 
 $(document).on('click', '#delete-task', function(e) {
@@ -24,8 +26,10 @@ $(document).on('click', '#delete-task', function(e) {
 })
 
 $(document).on('click', '#delete-board', function(e) {
+    if(confirm('Are you sure you want to delete this board and everything associated with it?')) {
     http_delete($(this))
     return false
+    }
 })
 
 function http_delete(element) {

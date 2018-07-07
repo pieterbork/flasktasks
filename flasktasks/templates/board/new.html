@@ -13,10 +13,18 @@
             <textarea name="description" class="form-control" rows="3" placeholder="Board Description"></textarea>
         </div>
         <div class="form-group">
+            <label for="color">Color</label>
             <select class="form-control" name="color">
                 {% for color,val in colors.items() %}
                     <option value="{{val}}">{{color|title}}</option>
                 {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="template">Template</label>
+            <select class="form-control selectpicker" name="template">
+                <option value="0">None</option>
+                <option value="1" selected>To Do/Doing/Done</option>
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Create board</button>

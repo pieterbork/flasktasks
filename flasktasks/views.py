@@ -37,6 +37,7 @@ def new_board():
     if request.method == 'POST':
         title = request.form.get('title')
         desc = request.form.get('description')
+        template = int(request.form.get('template'))
         try:
             color = Color(int(request.form.get('color'))).value
         except:
@@ -44,6 +45,8 @@ def new_board():
         board = Board.query.filter(Board.title==title).first()
         if not board:
             board = Board(title, desc, color)
+            if template:
+                board.set_template(template)
             db.session.add(board)
             db.session.commit()
             socketio.emit('board_create', namespace='/boards')
@@ -66,7 +69,6 @@ def board(board_id):
         return url_for('boards')
     else:
         board = Board.query.get_or_404(board_id)
-        tasks_by_status = board.get_tasks_by_status()
 
         return render_template('board/index.html', board=board)
 

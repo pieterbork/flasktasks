@@ -2,11 +2,8 @@ from flasktasks import db
 from enum import Enum
 from time import strftime
 
-
-class Status(Enum):
-    TO_DO = 1
-    DOING = 2
-    DONE = 3
+class Template:
+    BASIC = [("To Do", 1, []), ("Doing", 11, []), ("Done", 2, [])]
 
 class Icon(Enum):
     FIRE = 1
@@ -26,7 +23,6 @@ class Icon(Enum):
     APPLE = 15
     EDUCATION = 16
     ICE_LOLLY_TASTED = 17
-
 
     def all():
         return {icon.name: icon.value for icon in Icon}
@@ -59,7 +55,6 @@ class Task(db.Model):
     def __init__(self, title, description, list_id, board_id, order, color=Color.GRAY.value):
         self.title = title
         self.description = description
-        self.status = Status.TO_DO.value
         self.board_id = board_id
         self.list_id = list_id
         self.order = order
@@ -109,30 +104,15 @@ class Board(db.Model):
     def get_num_tasks(self):
         return len(list(Task.query.filter(Task.board_id == self.id)))
 
-    def get_tasks_by_status(self, status=None):
-        if status:
-            return list(self.tasks.filter(Task.status==status).order_by(Task.order))
+    def set_template(self, template):
+        if template == 1:
+            TEMPLATE = Template.BASIC
         else:
-            return {
-                "TO_DO": list(self.tasks.filter(Task.status==Status["TO_DO"].value).order_by(Task.order)),
-                "DOING": list(self.tasks.filter(Task.status==Status["DOING"].value).order_by(Task.order)),
-                "DONE": list(self.tasks.filter(Task.status==Status["DONE"].value).order_by(Task.order))
-                }
+            return
 
-#class Tag(db.Model):
-#   id = db.Column(db.Integer, primary_key=True)
-#   name = db.Column(db.String(20), unique=True)
-#   color = db.Column(db.Integer)
-#   boards = db.relationship('Board', backref='tag', lazy='dynamic')
-#
-#   def __init__(self, name, color=Color.GREY):
-#       self.name = name
-#       self.color = color.value
-#   
-#   def style(self):
-#       color = Color(self.color)
-#       return "tagged tag-%s" % color.name.lower()
-
+        for idx, (name, icon, tasks) in enumerate(TEMPLATE):
+            new_list = List(name, icon, self.id, idx)
+            self.lists.append(new_list)
 
 class LogEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
