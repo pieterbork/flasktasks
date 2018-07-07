@@ -3,7 +3,10 @@
         <h3 class="panel-title">{{ list.title }}
             <span class="glyphicon glyphicon-{{ icons_rev[list.icon]|lower|replace('_','-') }}"></span>
             <span><a class="btn btn-link new-item" href="/list/{{list.id}}/tasks/new"><i class="glyphicon glyphicon-plus"></i> New Task</a></span>
-            <button id="delete-list" class="btn btn-link pull-right" href="/list/{{list.id}}"><i class="glyphicon glyphicon-trash"></i></button>
+            <div class="pull-right">
+                <a id="edit-list" class="btn btn-link" href="/list/{{list.id}}/edit"><i class="glyphicon glyphicon-cog"></i></a>
+                <button id="delete-list" class="btn btn-link" href="/list/{{list.id}}"><i class="glyphicon glyphicon-trash"></i></button>
+            </div>
         </h3>
     </div>
     <div class="panel-body">

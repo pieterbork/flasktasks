@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container">
+    <div class="page-header">
+        <h1>Edit Board</h1>
+		<h4>{{ board.title }}, <small>{{ board.description }}</small></h4>
+    </div>
+	
+    <form method="POST">
+        <div class="form-group">
+            <input name="title" type="text" class="form-control" value="{{ board.title }}" required>
+        </div>
+        <div class="form-group">
+            <textarea name="description" class="form-control" rows="3">{{ board.description }}</textarea>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="color">
+                {% for color,val in colors.items() %}
+                <option value="{{val}}" {% if board.color == val %} selected {% endif %}>{{color|title}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+
+</div>
+{% endblock %}

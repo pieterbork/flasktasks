@@ -72,6 +72,23 @@ def board(board_id):
 
         return render_template('board/index.html', board=board)
 
+@app.route('/board/<int:board_id>/edit', methods=['POST','GET'])
+def edit_board(board_id):
+    if request.method == 'POST':
+        board = Board.query.get_or_404(board_id)
+        board.title = request.form.get('title')
+        board.description = request.form.get('description')
+        try:
+            board.color = Color(int(request.form.get('color'))).value
+        except:
+            pass
+        db.session.commit()
+        #@TODO ADD SOCKETIO EMIT
+        return redirect(url_for('board', board_id=board_id))
+    else:
+        board = Board.query.get_or_404(board_id)
+        return render_template('board/edit.html', board=board)
+
 @app.route('/board/<int:board_id>/lists/new', methods=['POST', 'GET'])
 def new_list(board_id):
     if request.method == 'POST':
@@ -89,7 +106,7 @@ def new_list(board_id):
         socketio.emit('task_update', namespace='/board/{}'.format(board_id))
         return redirect(url_for('board', board_id=board_id))
     else:
-        return render_template('list/new.html', icons=Icon.all())
+        return render_template('list/new.html')
 
 @app.route('/board/<int:board_id>/list_container')
 def list_container(board_id):
@@ -108,6 +125,21 @@ def delete_list(list_id):
 
     return render_template('list/list_container.html', board=board)
 
+@app.route('/list/<int:list_id>/edit', methods=['POST','GET'])
+def edit_list(list_id):
+    if request.method == 'POST':
+        list = List.query.get_or_404(list_id)
+        list.title = request.form.get('title')
+        try:
+            list.icon = Icon(int(request.form.get('icon'))).value
+        except:
+            list.icon = 1
+        db.session.commit()
+        socketio.emit('task_update', namespace='/board/{}'.format(list.board_id))
+        return redirect(url_for('board', board_id=list.board_id))
+    else:
+        list = List.query.get_or_404(list_id)
+        return render_template('list/edit.html', list=list)
 
 @app.route('/list/<int:list_id>/tasks/new', methods=['POST', 'GET'])
 def new_task(list_id):
@@ -141,7 +173,7 @@ def task(task_id):
     else:
         task = Task.query.get_or_404(task_id)
         lists = List.query.filter(List.board_id == task.board_id).all()
-        return render_template('task/index.html', lists=lists, task=task, icons=Icon.all_reverse())
+        return render_template('task/index.html', lists=lists, task=task)
     
 @app.route('/tasks/<int:task_id>/edit', methods=['POST','GET'])
 def edit_task(task_id):

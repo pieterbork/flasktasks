@@ -28,7 +28,7 @@
             <h4>{{ board.title }} <small>{{ board.description }}</small></h4>
             <div class="btn-group task-control" role="group">
                 <a href="{{ url_for('new_list', board_id=board.id) }}" class="btn btn-link new-item"><span class="glyphicon glyphicon-plus"></span>New List</a>
-				<a href="{{ url_for('future') }}" id="edit-board" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span>Edit Board</a>
+                <a href="/board/{{board.id}}/edit" id="edit-board" class="btn btn-link"><span class="glyphicon glyphicon-cog"></span>Edit Board</a>
                 <button id="delete-board" class="btn btn-link" href="/board/{{board.id}}"><span class="glyphicon glyphicon-trash"></span>Delete</button>
             </div>
         </div>
