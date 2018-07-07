@@ -3,7 +3,11 @@ from enum import Enum
 from time import strftime
 
 class Template:
-    BASIC = [("To Do", 1, []), ("Doing", 11, []), ("Done", 2, [])]
+    BASIC = [
+            ("To Do", Icon.FIRE.value, []), 
+            ("Doing", Icon.FLASH.value, []), 
+            ("Done", Icon.SEND.value, [])
+            ]
 
 class Icon(Enum):
     FIRE = 1
