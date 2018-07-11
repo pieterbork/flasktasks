@@ -2,12 +2,6 @@ from flasktasks import db
 from enum import Enum
 from time import strftime
 
-class Template:
-    BASIC = [
-            ("To Do", Icon.FIRE.value, []), 
-            ("Doing", Icon.FLASH.value, []), 
-            ("Done", Icon.SEND.value, [])
-            ]
 
 class Icon(Enum):
     FIRE = 1
@@ -32,6 +26,13 @@ class Icon(Enum):
         return {icon.name: icon.value for icon in Icon}
     def all_reverse():
         return {icon.value: icon.name for icon in Icon}
+
+class Template:
+    BASIC = [
+            ("To Do", Icon.FIRE.value, []), 
+            ("Doing", Icon.FLASH.value, []), 
+            ("Done", Icon.SEND.value, [])
+            ]
 
 class Color(Enum):
     GRAY = 1
