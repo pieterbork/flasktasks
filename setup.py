@@ -9,6 +9,7 @@ setup(
         'flask_sqlalchemy',
         'flask_login',
         'flask-socketio',
-        'eventlet'
+        'eventlet',
+        'ldap3'
     ]
 )

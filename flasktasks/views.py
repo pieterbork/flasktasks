@@ -1,9 +1,15 @@
 from flask import render_template, request, redirect, url_for, abort, jsonify, flash, make_response
 from collections import defaultdict
-from flasktasks import app, db, socketio
-from flasktasks.models import Board, List, Task, Color, Icon, LogEntry
+from flasktasks import app, db, socketio, login_manager, config
+from flasktasks.models import User, Board, List, Task, Color, Icon, LogEntry
+from flasktasks.utils import ldap_login
+from flask_login import login_required, login_user, logout_user
 import sqlite3
 import flask_socketio as socket
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 @app.context_processor
 def inject_template_globals():
@@ -15,24 +21,61 @@ def inject_template_globals():
         }
 
 @app.route('/')
+@login_required
 def index():
     return redirect(url_for('boards'))
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('user')
+        password = request.form.get('password')
+
+        if not username or not password:
+            flash("Please supply both username and password.")
+            return redirect('/login')
+
+        ldap_user = ldap_login(username, password)
+        if ldap_user:
+            user = User.query.filter(User.username==username).first()
+            if not user:
+                user = User(username, "Test")
+                db.session.add(user)
+                db.session.commit()
+            print("Logging in user")
+            login_user(user)
+            return redirect('/')
+        else:
+            flash("Invalid login")
+            print("Bad Login")
+            return redirect('/login')
+    else:
+        return render_template('login.html')
+
+@app.route('/logout', methods=["GET"])
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
     
 @app.route('/future')
 def future():
     return render_template('future.html')
 
 @app.route('/boards', methods=['GET'])
+@login_required
 def boards():
     boards = Board.query.all()
     return render_template('boards.html', boards=boards)
 
 @app.route('/board_container', methods=['GET'])
+@login_required
 def board_container():
     boards = Board.query.all()
     return render_template('board/board_container.html', boards=boards)
 
 @app.route('/boards/new', methods=['POST', 'GET'])
+@login_required
 def new_board():
     if request.method == 'POST':
         title = request.form.get('title')
@@ -59,6 +102,7 @@ def new_board():
         return render_template('board/new.html')
 
 @app.route('/board/<int:board_id>', methods=['GET', 'DELETE'])
+@login_required
 def board(board_id):
     if request.method == 'DELETE':
         board = Board.query.get_or_404(board_id)
@@ -73,6 +117,7 @@ def board(board_id):
         return render_template('board/index.html', board=board)
 
 @app.route('/board/<int:board_id>/edit', methods=['POST','GET'])
+@login_required
 def edit_board(board_id):
     if request.method == 'POST':
         board = Board.query.get_or_404(board_id)
@@ -90,6 +135,7 @@ def edit_board(board_id):
         return render_template('board/edit.html', board=board)
 
 @app.route('/board/<int:board_id>/lists/new', methods=['POST', 'GET'])
+@login_required
 def new_list(board_id):
     if request.method == 'POST':
         board = Board.query.get_or_404(board_id)
@@ -109,11 +155,13 @@ def new_list(board_id):
         return render_template('list/new.html')
 
 @app.route('/board/<int:board_id>/list_container')
+@login_required
 def list_container(board_id):
     board = Board.query.get_or_404(board_id)
     return render_template('list/list_container.html', board=board)
 
 @app.route('/list/<int:list_id>', methods=['DELETE'])
+@login_required
 def delete_list(list_id):
     list = List.query.get_or_404(list_id)
 
@@ -126,6 +174,7 @@ def delete_list(list_id):
     return render_template('list/list_container.html', board=board)
 
 @app.route('/list/<int:list_id>/edit', methods=['POST','GET'])
+@login_required
 def edit_list(list_id):
     if request.method == 'POST':
         list = List.query.get_or_404(list_id)
@@ -142,6 +191,7 @@ def edit_list(list_id):
         return render_template('list/edit.html', list=list)
 
 @app.route('/list/<int:list_id>/tasks/new', methods=['POST', 'GET'])
+@login_required
 def new_task(list_id):
     if request.method == 'POST':
         list = List.query.get_or_404(list_id)
@@ -163,6 +213,7 @@ def new_task(list_id):
 
 
 @app.route('/tasks/<int:task_id>', methods=['DELETE', 'GET'])
+@login_required
 def task(task_id):
     if request.method == 'DELETE':
         task = Task.query.get_or_404(task_id)
@@ -176,6 +227,7 @@ def task(task_id):
         return render_template('task/index.html', lists=lists, task=task)
     
 @app.route('/tasks/<int:task_id>/edit', methods=['POST','GET'])
+@login_required
 def edit_task(task_id):
     if request.method == 'POST':
         task = Task.query.get_or_404(task_id)
@@ -193,6 +245,7 @@ def edit_task(task_id):
         return render_template('task/edit.html', task=task)
 
 @app.route('/tasks/<int:task_id>/set_list/<int:list_id>/order/<int:order>', methods=['GET'])
+@login_required
 def set_order(task_id, list_id, order):
     task = Task.query.get_or_404(task_id)
     current_list = List.query.get_or_404(task.list_id)
@@ -227,6 +280,7 @@ def set_order(task_id, list_id, order):
     return "Great!"
 
 @app.route('/log')
+@login_required
 def log():
     log_entries = LogEntry.query.all()
     return render_template('log.html', log_entries=log_entries)

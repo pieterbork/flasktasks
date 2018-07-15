@@ -19,11 +19,16 @@
                 <div class="navbar-header">
                     <a class="navbar-brand" href="{{ url_for('index') }}">FlaskTasks</a>
                 </div>
+                {% if current_user.is_authenticated %}
                 <ul class="nav navbar-nav">
                     <li class="{{ url_for('boards') | is_current_page }}">
                         <a href="{{ url_for('boards') }}">Boards</a>
                     </li>
                 </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+                {% endif %}
             </div>
         </nav> 
         {% block body %}{% endblock %}

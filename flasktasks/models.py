@@ -29,10 +29,10 @@ class Icon(Enum):
 
 class Template:
     BASIC = [
-            ("To Do", Icon.FIRE.value, []), 
-            ("Doing", Icon.FLASH.value, []), 
-            ("Done", Icon.SEND.value, [])
-            ]
+        ("To Do", Icon.FIRE.value, []), 
+        ("Doing", Icon.FLASH.value, []), 
+        ("Done", Icon.SEND.value, [])
+    ]
 
 class Color(Enum):
     GRAY = 1
@@ -46,16 +46,38 @@ class Color(Enum):
     def all_reverse():
         return {color.value: color.name for color in Color}
 
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20))
+    name = db.Column(db.String(70))
+
+    def __init__(self, username, name):
+        self.username = username
+        self.name = name
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id
+
 class Task(db.Model):
-    __tablename__ = "task"
+    __tablename__ = "tasks"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(70))
     description = db.Column(db.String(140))
     status = db.Column(db.Integer)
     color = db.Column(db.Integer)
     order = db.Column(db.Integer)
-    board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
-    list_id = db.Column(db.Integer, db.ForeignKey('list.id'))
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'))
+    list_id = db.Column(db.Integer, db.ForeignKey('lists.id'))
 
     def __init__(self, title, description, list_id, board_id, order, color=Color.GRAY.value):
         self.title = title
@@ -65,15 +87,14 @@ class Task(db.Model):
         self.order = order
         self.color = color
 
-
 class List(db.Model):
-    __tablename__ = "list"
+    __tablename__ = "lists"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(70))
     icon = db.Column(db.Integer)
     color = db.Column(db.Integer)
     order = db.Column(db.Integer)
-    board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'))
     tasks = db.relationship('Task', backref='list', lazy='dynamic')
 
     def __init__(self, title, icon, board_id, order, color=Color.GRAY.value):
@@ -90,7 +111,7 @@ class List(db.Model):
         return list(self.tasks.order_by(Task.order))
 
 class Board(db.Model):
-    __tablename__ = "board"
+    __tablename__ = "boards"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(70), unique=True)
     description = db.Column(db.String(210))
