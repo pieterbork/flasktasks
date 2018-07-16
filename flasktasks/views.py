@@ -32,7 +32,7 @@ def login():
         password = request.form.get('password')
 
         if not username or not password:
-            flash("Please supply both username and password.")
+            flash("Please supply both username and password.", 'error')
             return redirect('/login')
 
         ldap_user = ldap_login(username, password)
@@ -46,7 +46,7 @@ def login():
             login_user(user)
             return redirect('/')
         else:
-            flash("Invalid login")
+            flash("Invalid login", 'error')
             print("Bad Login")
             return redirect('/login')
     else:

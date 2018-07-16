@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<div id="message-box">
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category,message in messages %}
+        <h4 id="flash-message" class="{{category}}-message">{{ message }}</h4>
+        {% endfor %}
+    {% elif error %}
+        <h4 id="flash-message" class="error-message">{{ error }}</h4>
+    {% endif %}
+{% endwith %}
+</div>
 <div class="container">
-    <div id="message-box">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category,message in messages %}
-            <h4 id="flash-message" class="{{category}}-message">{{ message }}</h4>
-            {% endfor %}
-        {% elif error %}
-            <h4 id="flash-message" class="error-message">{{ error }}</h4>
-        {% endif %}
-    {% endwith %}
-    </div>
     <div class="row">
         <!--<div class="row justify-content-center">
             <img src="/static/images/pineapple.png" title="Pineapple!" width="200px" height="200px">

@@ -14,6 +14,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 login_manager.login_view = "login"
+login_manager.login_message = ""
 
 if not config.LOGIN:
     login_manager.anonymous_user.is_authenticated = True
