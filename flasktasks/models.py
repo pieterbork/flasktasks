@@ -73,7 +73,6 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(70))
     description = db.Column(db.String(140))
-    status = db.Column(db.Integer)
     color = db.Column(db.Integer)
     order = db.Column(db.Integer)
     board_id = db.Column(db.Integer, db.ForeignKey('boards.id'))
@@ -82,10 +81,13 @@ class Task(db.Model):
     def __init__(self, title, description, list_id, board_id, order, color=Color.GRAY.value):
         self.title = title
         self.description = description
-        self.board_id = board_id
-        self.list_id = list_id
-        self.order = order
         self.color = color
+        self.order = order
+        self.list_id = list_id
+        self.board_id = board_id
+
+    def __repr__(self):
+        return "<Task(id='{}', title='{}', description='{}', color='{}', order='{}', list_id='{}', board_id='{}')>".format(self.id, self.title, self.description, self.color, self.order, self.list_id, self.board_id)
 
 class List(db.Model):
     __tablename__ = "lists"
@@ -109,6 +111,9 @@ class List(db.Model):
 
     def get_tasks(self):
         return list(self.tasks.order_by(Task.order))
+
+    def __repr__(self):
+        return "<List(id='{}', title='{}', icon='{}', color='{}', order='{}', board_id='{}')>".format(self.id, self.title, self.icon, self.color, self.order, self.board_id)
 
 class Board(db.Model):
     __tablename__ = "boards"
@@ -140,11 +145,17 @@ class Board(db.Model):
             new_list = List(name, icon, self.id, idx)
             self.lists.append(new_list)
 
+    def __repr__(self):
+        return "<Board(id='{}', title='{}', description='{}', color='{}')>".format(self.id, self.title, self.description, self.color)
+
 class LogEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.String(30))
     message = db.Column(db.String(140))
+    timestamp = db.Column(db.String(30))
 
-    def __init__(self, message):
+    def __init__(self, message, timestamp=strftime("%d-%m-%Y %H:%M:%S")):
         self.message = message
-        self.timestamp = strftime("%d-%m-%Y %H:%M:%S")
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return "<LogEntry(id='{}', message='{}', timestamp='{}')>".format(self.id, self.message, self.timestamp)
