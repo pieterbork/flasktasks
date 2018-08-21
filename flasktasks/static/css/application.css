@@ -46,6 +46,9 @@ body.dragging, body.dragging * {
 .item-list {
     min-height: 200px;
 }
+.lists-list {
+    min-height: 150px;
+}
 .task-count {
     position:absolute;
     top: 0;

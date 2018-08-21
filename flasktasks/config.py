@@ -1,4 +1,4 @@
-LOGIN = True
+LOGIN = False
 #Anonymous bind
 LDAP_SERVER = "localhost"
 #ou=Users,DC=example,DC=com

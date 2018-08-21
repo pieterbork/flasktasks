@@ -19,7 +19,7 @@
                 <div class="navbar-header">
                     <a class="navbar-brand" href="{{ url_for('index') }}">FlaskTasks</a>
                 </div>
-                {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated and not current_user.is_anonymous %}
                 <ul class="nav navbar-nav">
                     <li class="{{ url_for('boards') | is_current_page }}">
                         <a href="{{ url_for('boards') }}">Boards</a>

@@ -3,7 +3,7 @@ from collections import defaultdict
 from flasktasks import app, db, socketio, login_manager, config
 from flasktasks.models import User, Board, List, Task, Color, Icon, LogEntry
 from flasktasks.utils import ldap_login
-from flask_login import login_required, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 import sqlite3
 import flask_socketio as socket
 
@@ -50,6 +50,8 @@ def login():
             print("Bad Login")
             return redirect('/login')
     else:
+        if current_user.is_authenticated:
+            return redirect('/')
         return render_template('login.html')
 
 @app.route('/logout', methods=["GET"])
@@ -133,6 +135,20 @@ def edit_board(board_id):
     else:
         board = Board.query.get_or_404(board_id)
         return render_template('board/edit.html', board=board)
+
+@app.route('/board/<int:board_id>/set_list_order', methods=['POST'])
+def set_list_order(board_id):
+    if request.method == 'POST':
+        board = Board.query.get_or_404(board_id)
+        for li in request.json:
+            list_id = li.split('-')[1]
+            new_order = request.json.index(li)
+            list = List.query.get_or_404(list_id)
+            if new_order != list.order:
+                list.order = new_order
+            db.session.commit()
+
+        return "Yay!"
 
 @app.route('/board/<int:board_id>/lists/new', methods=['POST', 'GET'])
 @login_required

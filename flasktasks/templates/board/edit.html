@@ -7,21 +7,56 @@
     </div>
 	
     <form method="POST">
-        <div class="form-group">
-            <input name="title" type="text" class="form-control" value="{{ board.title }}" required>
+        <div class="col-md-7">
+            <div class="form-group">
+                <input name="title" type="text" class="form-control" value="{{ board.title }}" required>
+            </div>
+            <div class="form-group">
+                <textarea name="description" class="form-control" rows="3">{{ board.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <select class="form-control" name="color">
+                    {% for color,val in colors.items() %}
+                    <option value="{{val}}" {% if board.color == val %} selected {% endif %}>{{color|title}}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-        <div class="form-group">
-            <textarea name="description" class="form-control" rows="3">{{ board.description }}</textarea>
-        </div>
-        <div class="form-group">
-            <select class="form-control" name="color">
-                {% for color,val in colors.items() %}
-                <option value="{{val}}" {% if board.color == val %} selected {% endif %}>{{color|title}}</option>
+        <div class="col-md-5">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    List Order
+                </div>
+                <div class="list-group lists-list panel-body ui-sortable">
+                {% for list in board.get_lists() %}
+                    <li class="ui-sortable-handle list-group-item" id="list-{{list.id}}">
+                        <i class="glyphicon glyphicon-resize-vertical"></i>
+                        {{ list.title }}
+                    </li>
                 {% endfor %}
-            </select>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
     </form>
-
 </div>
+<script type="text/javascript">
+    $('.lists-list').sortable({
+        stop: function(event, ui) {
+            var list_order = Array()
+            $('.ui-sortable-handle').each(function() {
+                list_order.push(this.id)
+            })
+
+            $.ajax({
+                url: '/board/{{board.id}}/set_list_order',
+                type: 'POST',
+                data: JSON.stringify(list_order),
+                contentType: "application/json"
+            })
+        }
+    })
+</script>
 {% endblock %}
