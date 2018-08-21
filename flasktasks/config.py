@@ -1,3 +1,5 @@
+DB_PATH = "flasktasks/flasktasks.db"
+#Set to True to enable logins
 LOGIN = False
 #Anonymous bind
 LDAP_SERVER = "localhost"
